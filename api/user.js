@@ -82,7 +82,7 @@ router.post("/logout", isLoggedIn, (req,res)=>{
 });
 
 // 아이디 중복 확인
-router.get("/exists/:id", (req, res)=>{
+router.get("/exists/:id", async (req, res)=>{
     const id = req.params.id;
     const _user = await getById(id);
     if(_user) return true;

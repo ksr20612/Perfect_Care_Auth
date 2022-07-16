@@ -12,13 +12,12 @@ import logger from "./config/logger.js";
 
 // passport 관련
 import passport from "passport";
-import passportConfig from "./config/passport";
-
+import passportConfig from "./config/passport/index.js";
 
 // api 관련
 import defaultRouter from "./api/index.js"
 import tokenRouter from "./api/token.js";
-import userRouter from "./api/user/js";
+import userRouter from "./api/user.js";
 
 (async () => {
 
