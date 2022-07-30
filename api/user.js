@@ -4,20 +4,16 @@ import bcrypt from "bcrypt";
 import logger from "../config/logger.js";
 import { isLoggedIn, isNotLoggedIn } from "./middlewares.js"; 
 import { getById, create } from "../services/userService.js";
+import { signNewToken } from "./token.js";
 
 const router = express.Router();
-
-// nunjucks 접근
-// router.use((req, res, next)=>{
-//     res.locals.user = req.user;
-// })
 
 // 회원가입
 router.post("/join", isNotLoggedIn, async (req, res)=>{
     const { id, password, name, nick, gender, age, residence, fromWhere, isForResearch } = req.body;
     const _user = await getById(id);
     if(_user) {
-        return res.status(482).json({
+        return res.status(201).json({
             code : 482,
             message : "이미 가입된 사용자입니다.",
         })
@@ -35,6 +31,7 @@ router.post("/join", isNotLoggedIn, async (req, res)=>{
         fromWhere,
         isForResearch
     });
+    console.log(user);
     if(user) {
         return res.status(201).json({
             code : 201,
@@ -47,27 +44,40 @@ router.post("/join", isNotLoggedIn, async (req, res)=>{
 });
 
 // 로그인
-router.post("/login", isNotLoggedIn, (req, res)=>{
+router.post("/login", isNotLoggedIn, (req, res, next)=>{
     passport.authenticate("local", (authError, user, info) => {
         if(authError) {
             logger.error(authError);
             return next(authError);
         }
         if(!user) {
-            return res.status(483).json({
+            return res.json({
                 code : 483,
                 message : info.message,
             })
         }
-        return req.login(user, (loginError) => {
+        return req.login(user, async (loginError) => {
             if(loginError) {
                 logger.error(loginError);
                 return next(loginError);
+            }else {
+                const token = await signNewToken(user.id);
+                if(token) {
+                    console.log(token);
+                    return res.status(201).json({
+                        code : 201,
+                        id : user.id,
+                        token,
+                    });
+                }else {
+                    logger.error("토큰 생성 실패 : " + user.id);
+                    return res.json({
+                        code : 484,
+                        message : "[484] 로그인에 실패하였습니다.",
+                    })
+                }
             }
-            return res.status(201).json({
-                code : 201,
-                id : user.id,
-            });
+
         })
     }) (req, res, next);
 });
@@ -88,5 +98,13 @@ router.get("/exists/:id", async (req, res)=>{
     if(_user) return true;
     return false;
 });
+
+// 카카오 로그인
+router.get("/kakao", passport.authenticate("kakao"));
+router.get("/kakao/callback", passport.authenticate("kakao", {
+    failureRedirect : "/signin",
+}), (req, res)=>{
+    res.redirect("/");
+})
 
 export default router;

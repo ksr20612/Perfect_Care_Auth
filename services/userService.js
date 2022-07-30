@@ -10,6 +10,11 @@ const tempData = [
         id : "test2",
         password : "4321",
         name : "ethan2"
+    },
+    {
+        id : "kakao",
+        password : "kakao",
+        provider : "kakao",
     }
 ]
 
