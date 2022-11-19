@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcrypt";
-import { getById } from "../../services/userService.js";
+import { getByIdPass } from "../../services/userService.js";
 import logger from "../logger.js";
 
 const Local = () => {
@@ -10,16 +10,13 @@ const Local = () => {
         passwordField : "password",
     }, async (id, password, done) => {
         try {
-            const exUser = await getById(id);
+            console.log({id, password});
+            const exUser = await getByIdPass(id, password);
+            console.log(exUser);
             if(exUser) {
-                const result = await bcrypt.compare(password, exUser.password);
-                if(result) {
-                    done(null, exUser);
-                }else {
-                    done(null, null, { message : "비밀번호가 일치하지 않습니다."});
-                }
+                done(null, exUser, null);
             }else {
-                done(null, null, { message : "가입되지 않은 아이디입니다."});
+                done(null, null, { message : "잘못된 로그인 정보입니다."});
             }
         }catch(err) {
             logger.error(err);
@@ -27,6 +24,12 @@ const Local = () => {
             done(err);
         }
     }));
+    passport.serializeUser((user, done)=>{
+        done(null, user);
+    });
+    passport.deserializeUser((user, done)=>{
+        done(null, user);
+    });
 }
 
 export default Local;

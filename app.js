@@ -61,7 +61,7 @@ import userRouter from "./api/user.js";
     app.use(passport.session());
 
     // routing(token)
-    app.use("/", defaultRouter);
+    // app.use("/", defaultRouter);
     app.use("/user", userRouter);   // 회원 가입 관련
     app.use("/token", tokenRouter); // 토큰 관련
 

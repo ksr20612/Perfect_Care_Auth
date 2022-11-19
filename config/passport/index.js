@@ -8,11 +8,11 @@ const Passport = () => {
         done(null, user.id);
     });
 
-    passport.deserializeUser(async (id, done)=>{
-        const user = await getById(id);
-        if(!user) throw Error("no data"); 
-        done(null, user);
-    })
+    // passport.deserializeUser(async (id, done)=>{
+    //     const user = await getById(id);
+    //     if(!user) throw Error("no data"); 
+    //     done(null, user);
+    // })
 
     Local();
 }

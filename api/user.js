@@ -10,7 +10,7 @@ const router = express.Router();
 
 // 회원가입
 router.post("/join", isNotLoggedIn, async (req, res)=>{
-    const { id, password, name, nick, gender, age, residence, fromWhere, isForResearch } = req.body;
+    const { id, password, nick } = req.body;
     const _user = await getById(id);
     if(_user) {
         return res.status(201).json({
@@ -18,20 +18,13 @@ router.post("/join", isNotLoggedIn, async (req, res)=>{
             message : "이미 가입된 사용자입니다.",
         })
     }
-    const pwHashed = await bcrypt.hash(password, 12);
+    // const pwHashed = await bcrypt.hash(password, 12);
     // 생성
     const user = create({
         id,
-        password : pwHashed,
-        name,
+        password,
         nick,
-        gender,
-        age,
-        residence,
-        fromWhere,
-        isForResearch
     });
-    console.log(user);
     if(user) {
         return res.status(201).json({
             code : 201,
@@ -66,7 +59,7 @@ router.post("/login", isNotLoggedIn, (req, res, next)=>{
                     console.log(token);
                     return res.status(201).json({
                         code : 201,
-                        id : user.id,
+                        idx : user.idx,
                         token,
                     });
                 }else {

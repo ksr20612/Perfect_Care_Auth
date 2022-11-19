@@ -1,40 +1,49 @@
 import logger from "../config/logger.js";
-
-const tempData = [
-    {
-        id : "test",
-        password : "1234",
-        name : "ethan"
-    }, 
-    {
-        id : "test2",
-        password : "4321",
-        name : "ethan2"
-    },
-    {
-        id : "kakao",
-        password : "kakao",
-        provider : "kakao",
-    }
-]
+import { query } from "../models/mysql.js";
 
 const getById = async (id) => {
-    for(const user of tempData) {
-        if(user.id === id) {
-            return user;
-        }
-    }
-    logger.error(`userService getById : no data matched ${id}`);
-    return null;
-}
-const create = async (newUser) => {
     try {
-        tempData.push(newUser);
-        return newUser;
+        const sql = `select * from users where userId = '${id}'`;
+        logger.info(`${id} : ${sql}`);
+        const [result] = await query(sql, {});
+        if(result.length > 0) {
+            return result[0];
+        }else {
+            throw Error("no data matched!");
+        }
+    } catch(err) {
+        return false;
+    }
+}
+const getByIdPass = async (id, password) => {
+    try {
+        const sql = `select * from users where userId = '${id}' and password = '${password}';`;
+        logger.info(`${id} : ${sql}`);
+        const [result] = await query(sql, {});
+        if(result.length > 0) {
+            return result[0];
+        }else {
+            throw Error("no data matched!");
+        }
+    } catch(err) {
+        logger.error(`userService getByIdPass : no data matched ${id}`);
+        return null;
+    }
+}
+const create = async ({id, password, nick}) => {
+    try {
+        const sql = `insert into users(userId, password, nickname) values ('${id}', '${password}', '${nick}');`
+        logger.info(`${id} : ${sql}`);
+        const [result] = await query(sql, {});
+        if(result) {
+            return true;
+        }else {
+            throw Error("no data matched!");
+        }
     } catch(e) {
-        logger.error(`userService create : fail create user "${newUser.id || null}"`);
+        logger.error(`userService create : fail create user "${id}"`);
         return false;
     }
 }
 
-export { getById, create };
+export { getById, getByIdPass, create };
