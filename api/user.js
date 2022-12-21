@@ -60,6 +60,8 @@ router.post("/login", isNotLoggedIn, (req, res, next)=>{
                     return res.status(201).json({
                         code : 201,
                         idx : user.idx,
+                        id : user.userId,
+                        nick : user.nickname,
                         token,
                     });
                 }else {
